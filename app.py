@@ -36,9 +36,9 @@ def merge_videos(req: MergeRequest, x_secret: str = Header(None)):
         download_file(req.scene1_url, in1)
         download_file(req.scene2_url, in2)
 
-        # Meta & YouTube compliant re-encoding (H.264 + AAC + yuv420p + faststart)
         cmd = [
             "ffmpeg", "-y",
+            "-threads", "1",
             "-i", in1,
             "-i", in2,
             "-filter_complex",
@@ -50,8 +50,8 @@ def merge_videos(req: MergeRequest, x_secret: str = Header(None)):
             "-map", "[v]",
             "-map", "[a]",
             "-c:v", "libx264",
-            "-preset", "fast",
-            "-crf", "23",
+            "-preset", "ultrafast",
+            "-crf", "24",
             "-profile:v", "high",
             "-level", "4.1",
             "-pix_fmt", "yuv420p",
@@ -59,6 +59,7 @@ def merge_videos(req: MergeRequest, x_secret: str = Header(None)):
             "-b:a", "128k",
             "-ar", "44100",
             "-movflags", "+faststart",
+            "-threads", "1",
             out
         ]
         subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
